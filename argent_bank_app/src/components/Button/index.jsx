@@ -2,18 +2,24 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Button.module.scss';
 
-function Button({ to, children, className }) {
-    const navigate = useNavigate(); 
+function Button({ to, children, className, onClick, type = "button" }) {
+    const navigate = useNavigate();
 
+    const handleClick = (event) => { 
+        if (onClick) {
+            onClick();
+        }
 
-    const handleClick = () => {
-        navigate(to); 
+        if (to) {
+            event.preventDefault(); 
+            navigate(to);
+        }
     };
-
+    
     const buttonClasses = className ? styles[className] : styles['sign-in-button'];
 
     return (
-        <button type="button" className={buttonClasses} onClick={handleClick}>
+        <button type={type} className={buttonClasses} onClick={handleClick}>
             {children}
         </button>
     );

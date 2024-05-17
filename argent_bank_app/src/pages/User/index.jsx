@@ -1,43 +1,117 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styles from './User.module.scss';
 import Button from '../../components/Button/';
 import UserAccount from '../../components/UserAccount';
+import UserAccountData from '../../Data/UserBankAccount.json';
+import { fetchUserDetails, updateUserDetails } from '../../Slices/userSlice';
+import Modal from '../../components/Modal';
+import Form from '../../components/Form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 function User() {
+    const dispatch = useDispatch();
+    const { details, loading, error } = useSelector(state => state.user);
+    const { token } = useSelector(state => state.auth);
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
-        document.title = "Argent bank - User";
+        if (token) {
+            dispatch(fetchUserDetails());
+        }
+    }, [token, dispatch]);
+
+    useEffect(() => {
+        document.title = "Argent Bank - User";
     }, []);
 
-    const accounts = [
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage('');
+            }, 3000);
+    
+            return () => clearTimeout(timer); 
+        }
+    }, [successMessage]); 
+    
+
+    const formFields = [
         {
-            title: "Argent Bank Checking (x8349)",
-            amount: "$2,082.79",
-            description: "Available Balance"
+            name: 'userName',
+            label: 'User Name',
+            type: 'text',
+            defaultValue: details ? details.userName : '',
         },
         {
-            title: "Argent Bank Savings (x6712)",
-            amount: "$10,928.42",
-            description: "Available Balance"
+            name: 'firstName',
+            label: 'First Name',
+            type: 'text',
+            defaultValue: details ? details.firstName : '',
+            readOnly: true,
         },
         {
-            title: "Argent Bank Credit Card (x8349)",
-            amount: "$184.30",
-            description: "Current Balance"
+            name: 'lastName',
+            label: 'Last Name',
+            type: 'text',
+            defaultValue: details ? details.lastName : '',
+            readOnly: true,
         }
     ];
+
+    const handleSubmit = (formData) => {
+        const userData = {
+            userName: formData.userName
+        };
+        dispatch(updateUserDetails(userData))
+            .then(() => {
+                setModalOpen(false);
+                setSuccessMessage('Username successfuly changed...');
+            })
+            .catch(error => {
+            });
+    };
+
+    const handleEditClick = () => {
+        setModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalOpen(false);
+    };
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
 
     return (
         <main className='main bg-dark'>
             <div className={styles.header}>
-                <h1>Welcome back<br />{/* Nom Dynamique ici */}</h1>
-                <Button to="/" className="edit-button">
+                <h1>Welcome back<br />{details ? `${details.firstName} ${details.lastName}` : ''}</h1>
+                <Button onClick={handleEditClick} className="edit-button">
                     Edit Name
                 </Button>
-
+                <Modal isOpen={!!successMessage} onClose={() => setSuccessMessage('')} extraOverlayClass="modalOverlayTransparent">
+                    <div className={styles.successModalContent}>
+                        <span>{successMessage}</span>
+                        <FontAwesomeIcon icon={faTimes} className={styles.closeIcon} onClick={() => setSuccessMessage('')} />
+                    </div>
+                </Modal>
             </div>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+                <Form
+                    key={details ? details.updatedAt : 'initial'}
+                    fields={formFields}
+                    onSubmit={handleSubmit}
+                    onCancel={handleCloseModal}
+                    buttonText="Save"
+                    title="Edit Your Name"
+                    includeCancelButton={true}
+                />
+            </Modal>
             <h2 className="sr-only">Accounts</h2>
-            {accounts.map((account, index) => (
+            {UserAccountData.map((account, index) => (
                 <UserAccount key={index} account={account} />
             ))}
         </main>

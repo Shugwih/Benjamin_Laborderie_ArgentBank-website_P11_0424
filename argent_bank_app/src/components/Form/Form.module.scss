@@ -1,0 +1,34 @@
+.input-remember {
+    display: flex;
+    & label {
+      margin-left: 0.25rem;
+    }
+  }  
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 1rem;
+  & label {
+     font-weight: bold;
+  }
+  & input {
+    padding: 5px;
+    font-size: 1.2rem;
+  }
+  & [readOnly] {
+    background-color: #f0f0f0; 
+    color: #686868; 
+    cursor: default;
+  }
+}
+
+@keyframes slideFromTop {
+  from {
+    transform: translateY(-150%);
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

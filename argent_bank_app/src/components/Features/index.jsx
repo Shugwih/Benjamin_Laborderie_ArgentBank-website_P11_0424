@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Features.module.scss';
-import featuresData from '../../data.json'; 
+import featuresData from '../../Data/Features.json'; 
 
 function Features() {
     const [features, setFeatures] = useState([]);

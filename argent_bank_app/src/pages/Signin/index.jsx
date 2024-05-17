@@ -1,47 +1,55 @@
-import React, { useEffect } from 'react';
-import styles from './Signin.module.scss';
-//import { Link } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../../Slices/authSlice';
+import Form from '../../components/Form/';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../components/Button/'
+import styles from './Signin.module.scss';
 
 function Signin() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isLoggedIn, loading, error } = useSelector(state => state.auth);
 
-    useEffect(() => {
-        document.title = "Argent bank - Sign in";
-    }, []);
+    React.useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/User');
+        }
+    }, [isLoggedIn, navigate]);
+
+    const formFields = [
+        { 
+            name: 'email', 
+            type: 'text', 
+            label: 'Username' 
+        },
+        { 
+            name: 'password', 
+            type: 'password', 
+            label: 'Password' 
+        }
+    ];
+
+    const handleFormSubmit = (formData) => {
+        dispatch(loginUser(formData));
+    };
 
     return (
         <main className='main bg-dark'>
             <section className={styles['sign-in-content']}>
-                <FontAwesomeIcon icon={faUserCircle} className={styles['sign-in-icon']} />
-                <h1>Sign In</h1>
-                <form>
-                    <div className={styles['input-wrapper']}>
-                        <label htmlFor="username">
-                            Username
-                        </label>
-                        <input type="text" id="username" />
-                    </div>
-                    <div className={styles['input-wrapper']}>
-                        <label htmlFor="password">
-                            Password
-                        </label>
-                        <input type="password" id="password" />
-                    </div>
-                    <div className={styles['input-remember']}>
-                        <label htmlFor="remember-me">
-                            Remember me
-                        </label>
-                        <input type="checkbox" id="remember-me" />
-                    </div>
-                    <Button to="/User">
-                        Sign in
-                    </Button>
-                </form>
+            <Form 
+            fields={formFields} 
+            onSubmit={handleFormSubmit} 
+            includeRememberMe={true}
+            title="Sign in"
+            icon={faUserCircle}
+            disabled={loading}
+            />
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
             </section>
-        </main>     
-    )
+        </main>
+    );
 }
 
-export default Signin
+export default Signin;
