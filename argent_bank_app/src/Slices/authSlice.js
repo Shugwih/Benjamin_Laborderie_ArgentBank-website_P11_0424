@@ -13,20 +13,26 @@ export const loginUser = createAsyncThunk(
     }
 );
 
+const token = localStorage.getItem('token');
+
+const initialState = {
+    token: token ? token : null,
+    isLoggedIn: !!token, 
+    error: null,
+    loading: false,
+    user: null
+};
+
 const authSlice = createSlice({
     name: 'auth',
-    initialState: {
-        token: null,
-        isLoggedIn: false,
-        error: null,
-        loading: false
-    },
+    initialState,
     reducers: {
         logout(state) {
             state.token = null;
             state.isLoggedIn = false;
             state.error = null;
             state.loading = false;
+            state.user = null;
             localStorage.removeItem('token');
         }
     },
