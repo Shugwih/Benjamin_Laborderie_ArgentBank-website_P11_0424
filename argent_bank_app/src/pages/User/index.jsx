@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styles from './User.module.scss';
 import Button from '../../components/Button/';
 import UserAccount from '../../components/UserAccount';
@@ -12,16 +13,19 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 function User() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { details, loading, error } = useSelector(state => state.user);
     const { token } = useSelector(state => state.auth);
     const [isModalOpen, setModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
-        if (token) {
+        if (!token) {
+            navigate('/');
+        } else {
             dispatch(fetchUserDetails());
         }
-    }, [token, dispatch]);
+    }, [token, dispatch, navigate]);
 
     useEffect(() => {
         document.title = "Argent Bank - User";

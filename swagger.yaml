@@ -65,11 +65,11 @@ paths:
         - User Module
       summary: User Profile API
       description: API for fetching a user profile
-      #produces:
-       # - application/json
+      produces:
+        - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
@@ -94,11 +94,36 @@ paths:
         - application/json
       responses:
         '200':
-          description: User profile retrieved successully
+          description: User profile retrieved successfully
           schema:
             $ref: '#/definitions/ApiResponse'
         '400':
           description: Invalid Fields
+        '500':
+          description: Internal Server Error
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Retrieve all categories
+      description: Returns a list of all categories
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: List of categories
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                  example: 1
+                name:
+                  type: string
+                  example: "Objets"
         '500':
           description: Internal Server Error
   /user/accounts:
@@ -120,6 +145,8 @@ paths:
               $ref: '#/definitions/Account'
         '401':
           description: Unauthorized
+        '404':
+          description: User not found
         '500':
           description: Internal Server Error
   /user/accounts/{accountId}/transactions:
@@ -129,33 +156,6 @@ paths:
         required: true
         type: string
         description: ID of the account
-    post:
-      tags:
-        - Transactions
-      summary: Create a new transaction
-      description: Create a new transaction for the specified account
-      security:
-        - Bearer: []
-      parameters:
-        - in: body
-          name: body
-          description: Transaction Payload
-          required: true
-          schema:
-            $ref: '#/definitions/Transaction'
-      produces:
-        - application/json
-      responses:
-        '201':
-          description: Transaction created successfully
-          schema:
-            $ref: '#/definitions/Transaction'
-        '400':
-          description: Invalid Fields
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
     get:
       tags:
         - Transactions
@@ -174,6 +174,8 @@ paths:
               $ref: '#/definitions/Transaction'
         '401':
           description: Unauthorized
+        '404':
+          description: Account not found
         '500':
           description: Internal Server Error
   /user/accounts/{accountId}/transactions/{transactionId}:
@@ -212,14 +214,14 @@ paths:
       tags:
         - Transactions
       summary: Update a transaction
-      description: Update a specific transaction by ID
+      description: Update note and categories of a specific transaction by ID
       parameters:
         - in: body
           name: body
-          description: Transaction Payload
+          description: Partial Transaction Payload
           required: true
           schema:
-            $ref: '#/definitions/Transaction'
+            $ref: '#/definitions/UpdateTransaction'
       security:
         - Bearer: []
       produces:
@@ -229,26 +231,6 @@ paths:
           description: Transaction updated successfully
           schema:
             $ref: '#/definitions/Transaction'
-        '400':
-          description: Invalid Fields
-        '401':
-          description: Unauthorized
-        '404':
-          description: Transaction not found
-        '500':
-          description: Internal Server Error
-    delete:
-      tags:
-        - Transactions
-      summary: Delete a transaction
-      description: Delete a specific transaction by ID
-      security:
-        - Bearer: []
-      produces:
-        - application/json
-      responses:
-        '204':
-          description: Transaction deleted successfully
         '400':
           description: Invalid Fields
         '401':
@@ -353,6 +335,8 @@ definitions:
         type: number
         format: float
         description: Account balance after the transaction
+      note:
+        type: string
     example:
       id: "tr_1234567890"
       amount: 8.00
@@ -361,3 +345,16 @@ definitions:
       date: "2020-02-27"
       description: "Golden Sun Bakery"
       balance: 298.00
+      note: "Note about the transaction"
+  UpdateTransaction:
+    type: object
+    properties:
+      note:
+        type: string
+      categories:
+        type: array
+        items:
+          type: string
+    example:
+      note: "Updated note about the transaction"
+      categories: ["Updated Category"]

@@ -46,7 +46,7 @@ function Signin() {
             disabled={loading}
             />
             {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
+            {error && <p>Error: {error.message}</p>}
             </section>
         </main>
     );
